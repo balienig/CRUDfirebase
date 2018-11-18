@@ -1,0 +1,175 @@
+<html>
+
+<head>
+    <title>Firebase CRUD</title>
+    <script src="https://www.gstatic.com/firebasejs/5.5.8/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyDjcCWXT9LGAug8T3CJDuKv-6DVWDAqbrQ",
+            authDomain: "crud-7b92c.firebaseapp.com",
+            databaseURL: "https://crud-7b92c.firebaseio.com",
+            projectId: "crud-7b92c",
+            storageBucket: "crud-7b92c.appspot.com",
+            messagingSenderId: "992340281891"
+        };
+        firebase.initializeApp(config);
+    </script>
+</head>
+
+<body>
+    <table>
+        <tr>
+            <td>Employee ID: </td>
+            <td>
+                <input type="text" name="emp_id" id="emp_id" />
+            </td>
+        </tr>
+        <tr>
+            <td>firstname: </td>
+            <td>
+                <input type="text" name="first_name" id="first_name" />
+            </td>
+        </tr>
+        <tr>
+            <td>lastname: </td>
+            <td>
+                <input type="text" name="last_name" id="last_name" />
+            </td>
+        </tr>
+        <tr>
+            <td>age: </td>
+            <td>
+                <input type="number" name="age" id="age" />
+            </td>
+        </tr>
+        <tr>
+            <tr>
+                <td>salary: </td>
+                <td>
+                    <input type="number" name="salary" id="salary" />
+                </td>
+            </tr>
+            <tr>
+                <td>gender: </td>
+                <td>
+                    <input type="text" name="gender" id="gender" />
+                </td>
+            </tr>
+
+            <td colspan="2">
+                <input type="button" value="Save" onclick="save_user();" />
+                <input type="button" value="Update" onclick="update_user();" />
+                <input type="button" value="Delete" onclick="delete_user();" />
+            </td>
+        </tr>
+    </table>
+
+    <h3>Employees List</h3>
+
+    <table id="tbl_Employee_list" border="1">
+        <tr>
+            <td>Employee ID</td>
+            <td>first name</td>
+            <td>last name</td>
+            <td>age</td>
+            <td>salary</td>
+            <td>gender</td>
+        </tr>
+    </table>
+
+    <script>
+
+        var tblEmployee = document.getElementById('tbl_Employee_list');
+        var databaseRef = firebase.database().ref('Employee/');
+        var rowIndex = 1;
+
+        databaseRef.once('value', function (snapshot) {
+            snapshot.forEach(function (childSnapshot) {
+                var childKey = childSnapshot.key;
+                var childData = childSnapshot.val();
+
+                var row = tblEmployee.insertRow(rowIndex);
+                var cellEmpId = row.insertCell(0);
+                var cellFristName = row.insertCell(1);
+                var cellLastName = row.insertCell(2);
+                var cellage = row.insertCell(3);
+                var cellsalary = row.insertCell(4);
+                var cellgender = row.insertCell(5);
+                cellEmpId.appendChild(document.createTextNode(childData.emp_id));
+                cellFristName.appendChild(document.createTextNode(childData.firstname));
+                cellLastName.appendChild(document.createTextNode(childData.lastname));
+                cellage.appendChild(document.createTextNode(childData.age));
+                cellsalary.appendChild(document.createTextNode(childData.salary));
+                cellgender.appendChild(document.createTextNode(childData.gender));
+                rowIndex = rowIndex + 1;
+            });
+        });
+
+        function save_user() {
+            var first_name = document.getElementById('first_name').value;
+            var last_name = document.getElementById('last_name').value;
+            var age = parseInt(document.getElementById('age').value);
+            var salary = Number(document.getElementById('salary').value);
+            var gender = document.getElementById('gender').value;
+            var uid = firebase.database().ref().child('Employee').push().key;
+
+            var data = {
+                emp_id: uid,
+                firstname: first_name,
+                lastname: last_name,
+                age: age,
+                salary: salary,
+                gender: gender
+            }
+
+            var updates = {};
+            updates['/Employee/' + uid] = data;
+            firebase.database().ref().update(updates);
+
+            alert('Employee is created successfully!');
+            reload_page();
+        }
+
+        function update_user() {
+            var emp_id = document.getElementById('emp_id').value;
+            var first_name = document.getElementById('first_name').value;
+            var last_name = document.getElementById('last_name').value;
+            var age = parseInt(document.getElementById('age').value);
+            var salary = Number(document.getElementById('salary').value);
+            var gender = document.getElementById('gender').value;
+
+            var data = {
+                emp_id: emp_id,
+                firstname: first_name,
+                lastname: last_name,
+                age: age,
+                salary: salary,
+                gender: gender
+            }
+
+            var updates = {};
+            updates['/Employee/' + emp_id] = data;
+            firebase.database().ref().update(updates);
+
+            alert('Employee is updated successfully!');
+
+            reload_page();
+        }
+
+        function delete_user() {
+            var emp_id = document.getElementById('emp_id').value;
+
+            firebase.database().ref().child('/Employee/' + emp_id).remove();
+            alert('Employee is deleted successfully!');
+            reload_page();
+        }
+
+        function reload_page() {
+            window.location.reload();
+        }
+
+    </script>
+</body>
+
+</html>
